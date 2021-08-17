@@ -11,8 +11,45 @@ declare(strict_types=1);
 
 namespace EasySwoole\Database\Query\Grammars;
 
+use EasySwoole\Database\Query\Builder;
 
 class MySqlGrammar extends Grammar
 {
+    /**
+     * 组成select子句的组件。
+     * The components that make up a select clause.
+     *
+     * @var array
+     */
+    protected $selectComponents = [
+        'columns',
+        'from',
+        'wheres',
+    ];
 
+    /**
+     * 编译查询的“from”部分。
+     * Compile a select query into SQL.
+     *
+     * @param Builder $query
+     * @return string
+     */
+    public function compileSelect(Builder $query)
+    {
+        $sql = parent::compileSelect($query);
+
+        return $sql;
+    }
+
+    /**
+     * 在关键字标识符中包装单个字符串
+     * Wrap a single string in keyword identifiers.
+     *
+     * @param string $value
+     * @return string
+     */
+    protected function wrapValue($value)
+    {
+        return $value === '*' ? $value : '`' . str_replace('`', '``', $value) . '`';
+    }
 }

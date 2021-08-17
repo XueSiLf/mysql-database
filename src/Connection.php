@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace EasySwoole\Database;
 
 use EasySwoole\Database\Query\Builder;
+use EasySwoole\Database\Query\Expression;
 use EasySwoole\Database\Query\Processors\Processor;
 use Swoole\Coroutine\MySQL;
 use EasySwoole\Database\Query\Grammars\Grammar as QueryGrammar;
@@ -161,11 +162,15 @@ class Connection implements ConnectionInterface
 
 
 
+
     /**
+     * 开始对数据库表进行流畅的查询。
      * Begin a fluent query against a database table.
-     * @param string $table
+     *
+     * @param Expression|string $table
+     * @return Builder
      */
-    public function table(string $table): Builder
+    public function table($table): Builder
     {
         return $this->query()->from($table);
     }

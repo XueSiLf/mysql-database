@@ -22,7 +22,13 @@ class ConnectionTest extends TestCase
     public function getConnection(): Connection
     {
         $mysql = new MySQL();
-        $serverInfo = [];
+        $serverInfo = [
+            'host' => '127.0.0.1',
+            'user' => 'es_orm_debug',
+            'password' => 'es_orm_debug',
+            'database' => 'es_orm_debug',
+            'charset' => 'utf8'
+        ];
         $mysql->connect($serverInfo);
         $connection = new Connection($mysql);
         return $connection->setQueryGrammar(new MySqlGrammar());
@@ -35,13 +41,5 @@ class ConnectionTest extends TestCase
         $sql = $connection->table('user')->toSql();
 
         $this->assertSame('select * from `user`', $sql);
-
-        $sql = $connection->table('user as u')->toSql();
-
-        $this->assertSame('select * from `user` as `u`', $sql);
-
-        $sql = $connection->table(new Expression('(select 1 as id) a'))->toSql();
-
-        $this->assertSame('select * from (select 1 as id) a', $sql);
     }
 }

@@ -40,6 +40,27 @@ class Builder
     public $processor;
 
     /**
+     * The columns that should be returned.
+     *
+     * @var array
+     */
+    public $columns;
+
+    /**
+     * Indicates if the query returns distinct results.
+     *
+     * @var bool
+     */
+    public $distinct = false;
+
+    /**
+     * The where constraints for the query.
+     *
+     * @var array
+     */
+    public $wheres = [];
+
+    /**
      * Create a new query builder instance.
      *
      * @param ConnectionInterface $connection

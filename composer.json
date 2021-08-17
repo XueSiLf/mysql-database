@@ -33,7 +33,10 @@
     "autoload": {
         "psr-4": {
             "EasySwoole\\Database\\": "src/"
-        }
+        },
+        "files": [
+            "src/Util/Functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
