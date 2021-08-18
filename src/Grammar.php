@@ -12,22 +12,126 @@ declare(strict_types=1);
 namespace EasySwoole\Database;
 
 use EasySwoole\Database\Query\Expression;
+use EasySwoole\Database\Util\Traits\Macroable;
 
-class Grammar
+abstract class Grammar
 {
+    use Macroable;
+
     /**
      * 语法表前缀。
      * The grammar table prefix.
      *
-     * @var string $tablePrefix
+     * @var string
      */
     protected $tablePrefix = '';
+
+    /**
+     * 包装一个数组的值。
+     * Wrap an array of values.
+     *
+     * @return array
+     */
+    public function wrapArray(array $values)
+    {
+        return array_map([$this, 'wrap'], $values);
+    }
+
+    /**
+     * 用关键字标识符包装表。
+     * Wrap a table in keyword identifiers.
+     *
+     * @param \EasySwoole\Database\Query\Expression|string $table
+     * @return string
+     */
+    public function wrapTable($table)
+    {
+        if (!$this->isExpression($table)) {
+            return $this->wrap($this->tablePrefix . $table, true);
+        }
+
+        return $this->getValue($table);
+    }
+
+    /**
+     * 将值包装在关键字标识符中。
+     * Wrap a value in keyword identifiers.
+     *
+     * @param \EasySwoole\Database\Query\Expression|string $value
+     * @param bool $prefixAlias
+     * @return string
+     */
+    public function wrap($value, $prefixAlias = false)
+    {
+        if ($this->isExpression($value)) {
+            return $this->getValue($value);
+        }
+
+        // If the value being wrapped has a column alias we will need to separate out
+        // the pieces so we can wrap each of the segments of the expression on its
+        // own, and then join these both back together using the "as" connector.
+        if (stripos($value, ' as ') !== false) {
+            return $this->wrapAliasedValue($value, $prefixAlias);
+        }
+
+        return $this->wrapSegments(explode('.', $value));
+    }
+
+    /**
+     * 将列名数组转换为分隔字符串。
+     * Convert an array of column names into a delimited string.
+     *
+     * @return string
+     */
+    public function columnize(array $columns)
+    {
+        return implode(', ', array_map([$this, 'wrap'], $columns));
+    }
+
+    /**
+     * 为数组创建查询参数占位符。
+     * Create query parameter place-holders for an array.
+     *
+     * @return string
+     */
+    public function parameterize(array $values)
+    {
+        return implode(', ', array_map([$this, 'parameter'], $values));
+    }
+
+    /**
+     * 获取正确的用于填充占位符的查询参数的值。
+     * Get the appropriate query parameter place-holder for a value.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public function parameter($value)
+    {
+        return $this->isExpression($value) ? $this->getValue($value) : '?';
+    }
+
+    /**
+     * 对给定的字符串加上引号。
+     * Quote the given string literal.
+     *
+     * @param array|string $value
+     * @return string
+     */
+    public function quoteString($value)
+    {
+        if (is_array($value)) {
+            return implode(', ', array_map([$this, __FUNCTION__], $value));
+        }
+
+        return "'{$value}'";
+    }
 
     /**
      * 判断给出的值是否为原始表达式。
      * Determine if the given value is a raw expression.
      *
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     public function isExpression($value)
@@ -48,19 +152,25 @@ class Grammar
     }
 
     /**
-     * 在关键字标识符中包装单个字符串。
-     * Wrap a single string in keyword identifiers.
+     * 获取数据库存储日期的格式。
+     * Get the format for database stored dates.
      *
-     * @param string $value
      * @return string
      */
-    protected function wrapValue($value)
+    public function getDateFormat()
     {
-        if ($value !== '*') {
-            return '"' . str_replace('"', '""', $value) . '"';
-        }
+        return 'Y-m-d H:i:s';
+    }
 
-        return $value;
+    /**
+     * 获取语法的表前缀。
+     * Get the grammar's table prefix.
+     *
+     * @return string
+     */
+    public function getTablePrefix()
+    {
+        return $this->tablePrefix;
     }
 
     /**
@@ -106,41 +216,26 @@ class Grammar
     }
 
     /**
-     * 将值包装在关键字标识符中。
-     * Wrap a value in keyword identifiers.
+     * 在关键字标识符中包装单个字符串。
+     * Wrap a single string in keyword identifiers.
      *
-     * @param \EasySwoole\Database\Query\Expression|string $value
-     * @param bool $prefixAlias
+     * @param string $value
      * @return string
      */
-    public function wrap($value, $prefixAlias = false)
+    protected function wrapValue($value)
     {
-        if ($this->isExpression($value)) {
-            return $this->getValue($value);
+        if ($value !== '*') {
+            return '"' . str_replace('"', '""', $value) . '"';
         }
 
-        // If the value being wrapped has a column alias we will need to separate out
-        // the pieces so we can wrap each of the segments of the expression on its
-        // own, and then join these both back together using the "as" connector.
-        if (stripos($value, ' as ') !== false) {
-            return $this->wrapAliasedValue($value, $prefixAlias);
-        }
-
-        return $this->wrapSegments(explode('.', $value));
+        return $value;
     }
 
-    /**
-     * Wrap a table in keyword identifiers.
-     *
-     * @param \EasySwoole\Database\Query\Expression|string $table
-     * @return mixed
-     */
-    public function wrapTable($table)
-    {
-        if (!$this->isExpression($table)) {
-            return $this->wrap($this->tablePrefix . $table, true);
-        }
 
-        return $this->getValue($table);
-    }
+
+
+
+
+
+
 }

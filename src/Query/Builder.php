@@ -19,6 +19,13 @@ use EasySwoole\Database\Query\Processors\Processor;
 class Builder
 {
     /**
+     * The default string length for migrations.
+     *
+     * @var int $defaultStringLength
+     */
+    public static $defaultStringLength = 255;
+
+    /**
      * The database connection instance.
      *
      * @var ConnectionInterface $connection

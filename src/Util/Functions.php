@@ -80,3 +80,39 @@ if (!function_exists('data_get')) {
         return $target;
     }
 }
+
+if (!function_exists('head')) {
+    /**
+     * Get the first element of an array. Useful for method chaining.
+     *
+     * @param array $array
+     */
+    function head($array)
+    {
+        return reset($array);
+    }
+}
+if (!function_exists('last')) {
+    /**
+     * Get the last element from an array.
+     *
+     * @param array $array
+     */
+    function last($array)
+    {
+        return end($array);
+    }
+}
+if (! function_exists('tap')) {
+    /**
+     * Call the given Closure with the given value then return the value.
+     *
+     * @param null|callable $callback
+     * @param mixed $value
+     */
+    function tap($value, $callback = null)
+    {
+        $callback($value);
+        return $value;
+    }
+}

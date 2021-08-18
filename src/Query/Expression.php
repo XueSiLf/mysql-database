@@ -11,14 +11,13 @@ declare(strict_types=1);
 
 namespace EasySwoole\Database\Query;
 
-
 class Expression
 {
     /**
      * 表达式的值。
      * The value of the expression.
      *
-     * @var mixed $value
+     * @var mixed
      */
     protected $value;
 
@@ -33,7 +32,6 @@ class Expression
         $this->value = $value;
     }
 
-
     /**
      * 获取表达式的值。
      * Get the value of the expression.
@@ -42,7 +40,7 @@ class Expression
      */
     public function __toString()
     {
-        return (string) $this->value;
+        return (string)$this->value;
     }
 
     /**
